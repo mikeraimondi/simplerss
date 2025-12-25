@@ -17,7 +17,7 @@ interface CachedFeed {
 const cache = new Map<string, CachedFeed>();
 const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
 
-const server = serve({
+export const server = serve({
     port: PORT,
     async fetch(req) {
         const url = new URL(req.url);

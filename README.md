@@ -1,21 +1,23 @@
 # SimpleRSS - Modern Feed Reader
 
-SimpleRSS is a lightweight, high-fidelity RSS feed reader built as a Single Page Application (SPA). It features a "Unified Container" architecture where a fast Express.js backend serves both the API for RSS parsing/caching and the static frontend assets.
+SimpleRSS is a lightweight, high-fidelity RSS feed reader built as a Single Page Application (SPA). It features a "Unified Container" architecture with a high-performance **Bun** backend serving both the API for RSS parsing/caching and the static frontend assets.
 
 ## Features
 
 *   **Modern UI**: Sleek dark mode design with glassmorphism effects, glowing borders, and smooth micro-animations.
-*   **Unified Architecture**: Single Docker container handling both frontend serving and backend API logic.
-*   **RSS Parsing**: Robust server-side parsing using `rss-parser` with in-memory caching (10-minute TTL) for performance.
-*   **Security**: Secured with HTTP Basic Authentication to prevent unauthorized access.
+*   **Bun Powered**: Ultra-fast startup times (<10ms) and high-performance native server logic, ideal for Cloud Run scale-to-zero.
+*   **TypeScript**: Fully type-safe codebase (frontend & backend) using TypeScript for improved reliability.
+*   **RSS Parsing**: Server-side parsing using `rss-parser` with in-memory caching for snappier experience.
+*   **Security**: Secured with HTTP Basic Authentication to protect your data and prevent open-proxy abuse.
 *   **Responsive**: Fully responsive grid layout that adapts to mobile and desktop screens.
-*   **Cloud Ready**: Optimized for Google Cloud Run with scale-to-zero capabilities.
+*   **Cloud Ready**: Optimized for Google Cloud Run with minimal container footprint.
 
 ## Tech Stack
 
-*   **Frontend**: Vanilla JavaScript, Vite, CSS3 (Variables, Flexbox/Grid).
-*   **Backend**: Node.js, Express.js.
-*   **Containerization**: Docker (Multi-stage build).
+*   **Frontend**: TypeScript, Vite, Vanilla CSS.
+*   **Backend**: Bun (Native `Bun.serve`).
+*   **Language**: TypeScript.
+*   **Containerization**: Docker (Bun multi-stage build).
 *   **Deployment**: Google Cloud Run.
 
 ## Local Development
@@ -26,9 +28,9 @@ SimpleRSS is a lightweight, high-fidelity RSS feed reader built as a Single Page
     cd simplerss
     ```
 
-2.  **Install dependencies:**
+2.  **Install dependencies (using Bun):**
     ```bash
-    npm install
+    bun install
     ```
 
 3.  **Set up Environment Variables:**
@@ -38,20 +40,33 @@ SimpleRSS is a lightweight, high-fidelity RSS feed reader built as a Single Page
     BASIC_AUTH_PASSWORD=your_secure_password
     ```
 
-4.  **Run Development Server:**
-    Run the backend and frontend concurrently (requires two terminals):
+4.  **Run Development Tools:**
+    Run the backend and frontend concurrently for the best dev experience:
 
     *Terminal 1 (Backend):*
     ```bash
-    node server.js
+    bun run server.ts
     ```
     *Terminal 2 (Frontend):*
     ```bash
-    npm run dev
+    bun run dev
     ```
 
 5.  **Access the App:**
-    Open `http://localhost:5173`. The Vite proxy will forward API requests to the Express backend.
+    Open `http://localhost:5173`. API requests are proxied via Vite to the Bun server.
+
+## Testing
+
+Run the entire test suite (Unit, Integration, and E2E) with one command:
+
+```bash
+bun run build # Ensure dist is up to date for E2E
+bun run test  # Runs bun test && playwright test
+```
+
+*   **Unit Tests**: Logic for state management and reactive store (`tests/store.test.ts`).
+*   **Integration Tests**: Server API endpoints and auth logic (`tests/server.test.ts`).
+*   **E2E Tests**: Full UI flows and interaction via Playwright (`tests/e2e/*.e2e.ts`).
 
 ## Production Build & Docker
 
@@ -64,15 +79,25 @@ To build and run the production container locally:
 
 2.  **Run the Container:**
     ```bash
-    docker run -p 8080:8080 -e BASIC_AUTH_USER=admin -e BASIC_AUTH_PASSWORD=test simplerss
+    docker run -p 8080:8080 \
+      -e BASIC_AUTH_USER=admin \
+      -e BASIC_AUTH_PASSWORD=test \
+      simplerss
     ```
 
 3.  **Access:**
     Open `http://localhost:8080`.
 
-## Cloud Run Deployment
+## CI/CD Workflow
 
-Deploy directly from source using the Google Cloud CLI:
+The project is configured with a **Google Cloud Run GitHub Integration**.
+
+*   **Pushes to `main`**: Automatically trigger a build via Cloud Build and deploy a new revision to Cloud Run.
+*   **Tests**: It is recommended to run `bun run test` locally before pushing to ensure all tests pass, as the current CI is primarily for deployment.
+
+## Cloud Run Deployment (Manual)
+
+If you need to deploy manually or update configuration:
 
 ```bash
 gcloud run deploy simplerss-app \
@@ -81,8 +106,6 @@ gcloud run deploy simplerss-app \
   --allow-unauthenticated \
   --set-env-vars BASIC_AUTH_USER=admin,BASIC_AUTH_PASSWORD=your_secure_password
 ```
-
-*Note: `--allow-unauthenticated` is used because the application handles its own authentication via Basic Auth middleware.*
 
 ## License
 
