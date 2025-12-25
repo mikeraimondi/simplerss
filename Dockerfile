@@ -1,18 +1,19 @@
 # Build Stage
-FROM node:18-slim AS build
+FROM oven/bun:1 AS build
 WORKDIR /app
-COPY package*.json ./
-RUN npm install
 COPY . .
-RUN npm run build
+RUN bun install
+RUN bun run build
 
 # Production Stage
-FROM node:18-slim
+FROM oven/bun:1-slim
 WORKDIR /app
-COPY package*.json ./
-RUN npm install --production
 COPY --from=build /app/dist ./dist
-COPY server.js ./
+COPY --from=build /app/server.ts .
+COPY --from=build /app/package.json .
+COPY --from=build /app/bun.lock .
+
+RUN bun install --production
 
 EXPOSE 8080
-CMD ["node", "server.js"]
+CMD ["bun", "run", "server.ts"]

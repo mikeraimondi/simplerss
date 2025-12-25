@@ -1,17 +1,17 @@
 import { store } from './store';
 import { parseRSS } from './rss-parser';
 
-export function Sidebar() {
-    const { feeds, currentFeed } = store.state;
+export function Sidebar(): string {
+  const { feeds, currentFeed } = store.state;
 
-    const feedItems = feeds.map(feed => `
+  const feedItems = feeds.map(feed => `
     <li class="feed-item ${currentFeed?.url === feed.url ? 'active' : ''}" data-url="${feed.url}">
       <span class="feed-icon">📰</span>
       <span class="feed-name">${feed.name}</span>
     </li>
   `).join('');
 
-    return `
+  return `
     <aside class="sidebar">
       <div class="logo">
         <span class="logo-icon">📡</span>
@@ -27,11 +27,11 @@ export function Sidebar() {
   `;
 }
 
-export function MainContent() {
-    const { articles, isLoading, currentFeed, error } = store.state;
+export function MainContent(): string {
+  const { articles, isLoading, currentFeed, error } = store.state;
 
-    if (isLoading) {
-        return `
+  if (isLoading) {
+    return `
       <main class="main-content">
         <div class="header">
           <h1>Loading articles...</h1>
@@ -39,10 +39,10 @@ export function MainContent() {
         <div class="loader">Loading...</div>
       </main>
     `;
-    }
+  }
 
-    if (error) {
-        return `
+  if (error) {
+    return `
       <main class="main-content">
         <div class="header">
           <h1>Error loading feed</h1>
@@ -50,9 +50,9 @@ export function MainContent() {
         <div class="error-msg">${error}</div>
       </main>
     `;
-    }
+  }
 
-    const articleCards = articles.map((article, index) => `
+  const articleCards = articles.map((article, index) => `
     <div class="article-card fade-in" style="animation-delay: ${index * 0.05}s" onclick="window.open('${article.link}', '_blank')">
       <div class="article-meta">
         <span>${new Date(article.pubDate).toLocaleDateString()}</span>
@@ -62,7 +62,7 @@ export function MainContent() {
     </div>
   `).join('');
 
-    return `
+  return `
     <main class="main-content">
       <div class="header">
         <h1>${currentFeed ? currentFeed.name : 'Select a feed'}</h1>
@@ -74,9 +74,9 @@ export function MainContent() {
   `;
 }
 
-export function AddFeedModal() {
-    const { isModalOpen } = store.state;
-    return `
+export function AddFeedModal(): string {
+  const { isModalOpen } = store.state;
+  return `
     <div class="modal-overlay ${isModalOpen ? 'active' : ''}" id="modal-overlay">
       <div class="modal">
         <h2>Add New RSS Feed</h2>
@@ -97,50 +97,54 @@ export function AddFeedModal() {
   `;
 }
 
-export function renderApp() {
-    const app = document.querySelector('#app');
-    app.innerHTML = `
+export function renderApp(): void {
+  const app = document.querySelector('#app');
+  if (!app) return;
+
+  app.innerHTML = `
     ${Sidebar()}
     ${MainContent()}
     ${AddFeedModal()}
   `;
 
-    // Attach event listeners
-    document.querySelectorAll('.feed-item').forEach(item => {
-        item.addEventListener('click', async () => {
-            const url = item.getAttribute('data-url');
-            const feed = store.state.feeds.find(f => f.url === url);
-            store.update({ currentFeed: feed, isLoading: true, error: null });
-            try {
-                const articles = await parseRSS(url);
-                store.update({ articles, isLoading: false });
-            } catch (err) {
-                store.update({ error: 'Failed to fetch RSS feed', isLoading: false });
-            }
-        });
+  // Attach event listeners
+  document.querySelectorAll('.feed-item').forEach((item) => {
+    item.addEventListener('click', async () => {
+      const url = item.getAttribute('data-url');
+      if (!url) return;
+      const feed = store.state.feeds.find(f => f.url === url);
+      if (!feed) return;
+      store.update({ currentFeed: feed, isLoading: true, error: null });
+      try {
+        const articles = await parseRSS(url);
+        store.update({ articles, isLoading: false });
+      } catch (err) {
+        store.update({ error: 'Failed to fetch RSS feed', isLoading: false });
+      }
     });
+  });
 
-    document.querySelector('#open-modal').addEventListener('click', () => {
-        store.update({ isModalOpen: true });
-    });
+  document.querySelector('#open-modal')?.addEventListener('click', () => {
+    store.update({ isModalOpen: true });
+  });
 
-    document.querySelector('#close-modal').addEventListener('click', () => {
-        store.update({ isModalOpen: false });
-    });
+  document.querySelector('#close-modal')?.addEventListener('click', () => {
+    store.update({ isModalOpen: false });
+  });
 
-    document.querySelector('#modal-overlay').addEventListener('click', (e) => {
-        if (e.target.id === 'modal-overlay') store.update({ isModalOpen: false });
-    });
+  document.querySelector('#modal-overlay')?.addEventListener('click', (e: Event) => {
+    if ((e.target as HTMLElement).id === 'modal-overlay') store.update({ isModalOpen: false });
+  });
 
-    document.querySelector('#add-feed-btn').addEventListener('click', () => {
-        const nameInput = document.querySelector('#feed-name-input');
-        const urlInput = document.querySelector('#feed-url-input');
-        const name = nameInput.value.trim();
-        const url = urlInput.value.trim();
+  document.querySelector('#add-feed-btn')?.addEventListener('click', () => {
+    const nameInput = document.querySelector('#feed-name-input') as HTMLInputElement;
+    const urlInput = document.querySelector('#feed-url-input') as HTMLInputElement;
+    const name = nameInput.value.trim();
+    const url = urlInput.value.trim();
 
-        if (name && url) {
-            const newFeeds = [...store.state.feeds, { name, url }];
-            store.update({ feeds: newFeeds, isModalOpen: false });
-        }
-    });
+    if (name && url) {
+      const newFeeds = [...store.state.feeds, { name, url }];
+      store.update({ feeds: newFeeds, isModalOpen: false });
+    }
+  });
 }

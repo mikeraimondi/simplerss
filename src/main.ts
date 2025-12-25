@@ -14,13 +14,15 @@ store.subscribe(() => {
 // Load first feed by default if exists
 if (store.state.feeds.length > 0) {
   const initialFeed = store.state.feeds[0];
-  store.update({ currentFeed: initialFeed, isLoading: true });
+  if (initialFeed) {
+    store.update({ currentFeed: initialFeed, isLoading: true });
 
-  parseRSS(initialFeed.url)
-    .then(articles => {
-      store.update({ articles, isLoading: false });
-    })
-    .catch(err => {
-      store.update({ error: 'Failed to load initial feed', isLoading: false });
-    });
+    parseRSS(initialFeed.url)
+      .then(articles => {
+        store.update({ articles, isLoading: false });
+      })
+      .catch(err => {
+        store.update({ error: 'Failed to load initial feed', isLoading: false });
+      });
+  }
 }
