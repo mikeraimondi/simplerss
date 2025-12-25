@@ -93,7 +93,14 @@ To build and run the production container locally:
 The project is configured with a **Google Cloud Run GitHub Integration**.
 
 *   **Pushes to `main`**: Automatically trigger a build via Cloud Build and deploy a new revision to Cloud Run.
-*   **Tests**: It is recommended to run `bun run test` locally before pushing to ensure all tests pass, as the current CI is primarily for deployment.
+*   **Quality Gate**: Automated tests are enforced locally via Git Hooks (see below).
+
+## Git Hooks
+
+The project uses **Husky** to maintain code quality:
+
+*   **Pre-push**: Automatically runs `bun run test` (Unit, Integration, and E2E) before any push to ensure only passing code is deployed.
+*   **Setup**: Husky is initialized automatically during `bun install`.
 
 ## Cloud Run Deployment (Manual)
 
