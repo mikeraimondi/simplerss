@@ -14,7 +14,8 @@ const parseSpy = spyOn(Parser.prototype, 'parseURL').mockImplementation(async (u
 import { server } from "../server";
 
 describe("Server Integration", () => {
-    const authHeader = "Basic " + Buffer.from("admin:rLlFRXXQ5U3HKllL1gaw3qkMR6b9f5X0").toString("base64");
+    const password = process.env.BASIC_AUTH_PASSWORD || '';
+    const authHeader = "Basic " + Buffer.from(`admin:${password}`).toString("base64");
 
     test("should return 401 when no auth header is provided", async () => {
         const req = new Request("http://localhost:8080/api/feed?url=https://test.com");

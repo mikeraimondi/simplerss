@@ -27,7 +27,7 @@ export default defineConfig({
         /* HTTP Basic Auth credentials */
         httpCredentials: {
             username: 'admin',
-            password: process.env.BASIC_AUTH_PASSWORD || 'rLlFRXXQ5U3HKllL1gaw3qkMR6b9f5X0',
+            password: process.env.BASIC_AUTH_PASSWORD || '',
         },
     },
 
@@ -46,7 +46,7 @@ export default defineConfig({
         reuseExistingServer: !process.env.CI,
         env: {
             BASIC_AUTH_USER: 'admin',
-            BASIC_AUTH_PASSWORD: 'rLlFRXXQ5U3HKllL1gaw3qkMR6b9f5X0',
+            BASIC_AUTH_PASSWORD: process.env.BASIC_AUTH_PASSWORD || '',
             PORT: '8080'
         }
     },
