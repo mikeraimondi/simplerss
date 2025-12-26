@@ -10,9 +10,16 @@ const AUTH_USER = process.env.BASIC_AUTH_USER || 'admin';
 const AUTH_PASSWORD = process.env.BASIC_AUTH_PASSWORD;
 
 // Simplified cache
+interface Article {
+    title: string;
+    link: string;
+    pubDate: string;
+    excerpt: string;
+}
+
 interface CachedFeed {
     timestamp: number;
-    data: any[];
+    data: Article[];
 }
 const cache = new Map<string, CachedFeed>();
 const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
@@ -87,10 +94,10 @@ export const server = serve({
         // 3. Static Files & SPA Fallback
         // In Bun, we can serve files directly
         const distPath = path.join(import.meta.dir, "dist");
-        let filePath = path.join(distPath, url.pathname === "/" ? "index.html" : url.pathname);
+        const filePath = path.join(distPath, url.pathname === "/" ? "index.html" : url.pathname);
 
         // Attempt to serve the file
-        let file = Bun.file(filePath);
+        const file = Bun.file(filePath);
         if (await file.exists()) {
             return new Response(file);
         }

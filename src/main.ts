@@ -21,7 +21,7 @@ if (store.state.feeds.length > 0) {
       .then(articles => {
         store.update({ articles, isLoading: false });
       })
-      .catch(err => {
+      .catch(_err => {
         store.update({ error: 'Failed to load initial feed', isLoading: false });
       });
   }

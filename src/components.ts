@@ -118,7 +118,7 @@ export function renderApp(): void {
       try {
         const articles = await parseRSS(url);
         store.update({ articles, isLoading: false });
-      } catch (err) {
+      } catch (_err) {
         store.update({ error: 'Failed to fetch RSS feed', isLoading: false });
       }
     });

@@ -39,7 +39,7 @@ describe("Server Integration", () => {
         });
         const res = await server.fetch(req);
         expect(res.status).toBe(200);
-        const articles = await res.json() as any[];
+        const articles = await res.json() as { title: string }[];
         expect(Array.isArray(articles)).toBe(true);
         expect(articles[0].title).toBe("Test Article");
     });

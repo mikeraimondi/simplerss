@@ -1,4 +1,4 @@
-import { readFileSync, execSync } from "node:child_process";
+import { execSync } from "node:child_process";
 import fs from "node:fs";
 
 // Load .env manually to avoid dependencies
